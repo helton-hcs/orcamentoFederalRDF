@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import com.hp.hpl.jena.query.*;
 
-public class Main
+public class Tests
 {
 	static String readFile(String path, Charset encoding)  throws IOException 
 	{
