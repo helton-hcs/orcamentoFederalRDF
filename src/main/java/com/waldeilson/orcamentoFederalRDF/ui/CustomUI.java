@@ -9,12 +9,12 @@ public abstract class CustomUI extends JFrame {
 	private static final long serialVersionUID = -5122676356274003191L;
 	
 	protected abstract void setComponents();
-	protected abstract void setActionsListeners();	
+	protected abstract void setActionListeners();	
 	
 	public CustomUI(String title) {
 		super(title);
 		setComponents();
-		setActionsListeners();		
+		setActionListeners();		
 	}
 	
 	public void setupAndShow() {

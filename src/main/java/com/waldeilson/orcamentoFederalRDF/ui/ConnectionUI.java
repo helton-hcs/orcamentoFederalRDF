@@ -37,7 +37,7 @@ public class ConnectionUI extends CustomUI {
 	}
 	
 
-	public void setActionsListeners() {
+	public void setActionListeners() {
 		confirm.addActionListener(new ActionListener() {
 			
 			private void loadQueryUI() {

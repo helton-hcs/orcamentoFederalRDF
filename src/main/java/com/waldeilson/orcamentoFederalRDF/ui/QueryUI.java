@@ -1,5 +1,6 @@
 package com.waldeilson.orcamentoFederalRDF.ui;
 
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
@@ -24,6 +25,7 @@ public class QueryUI extends CustomUI {
 	protected void setComponents() {
 		query = new JTextArea(10, 40);
 		query.setToolTipText("Digite a query a ser executada aqui.");
+		query.setFont(new Font("Monospaced", Font.BOLD, 15));
 		queryScrollPanel = new JScrollPane(query, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED); 
 		add(queryScrollPanel);
 		
@@ -32,12 +34,14 @@ public class QueryUI extends CustomUI {
 		add(executeQuery);
 		
 		results = new JTextArea(10, 40);				
-		results.setToolTipText("Exibe o resultado da query em format de texto");					
+		results.setToolTipText("Exibe o resultado da query em formato texto");
+		results.setFont(new Font("Monospaced", Font.PLAIN, 15));
+		results.setEditable(false);
 		resultsScrollPanel = new JScrollPane(results, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		add(resultsScrollPanel);		
 	}
 	
-	protected void setActionsListeners() {
+	protected void setActionListeners() {
 		executeQuery.addActionListener(new ActionListener() {			
 			public void actionPerformed(ActionEvent e) {
 				if (!query.getText().isEmpty()) {
