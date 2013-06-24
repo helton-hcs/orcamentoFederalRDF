@@ -1,4 +1,4 @@
-package com.waldeilson.orcamentoFederalRDF.tests;
+package com.waldeilson.orcamentoFederalRDF.core;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -6,9 +6,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import com.hp.hpl.jena.query.*;
 
-public class Tests
+public class QueryFileReader
 {
 	static String readFile(String path, Charset encoding)  throws IOException 
 	{
@@ -19,17 +18,11 @@ public class Tests
 	public static String getQuery(String queryName)  {
     	String input = "";
     	try {
-			input = readFile("/media/Data/Dropbox/TrabalhoIA/Queries/"+queryName, StandardCharsets.UTF_8);
+			input = readFile(System.getProperty("user.dir")+"/queries/"+queryName, StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
     	return input;
 	}
 	
-    public static void main( String[] args ) {        
-    	Query query = QueryFactory.create(getQuery("query3.txt"));
-        QueryExecution qExe = QueryExecutionFactory.sparqlService("http://localhost:3030/ds/query", query );
-        ResultSet results = qExe.execSelect();
-        ResultSetFormatter.out(System.out, results, query) ;    	
-    }
 }

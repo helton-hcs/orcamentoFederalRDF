@@ -8,12 +8,18 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.ResultSetFormatter;
 
 public class QueryManager {
-
-	public static String execute(String queryText) {
-    	Query query = QueryFactory.create(queryText);
-        QueryExecution qExe = QueryExecutionFactory.sparqlService(Connection.getURL(), query);
+	
+	public static String executar(String queryText) {
+    	Query query = QueryFactory.create(queryText);    	
+        QueryExecution qExe = QueryExecutionFactory.sparqlService(Endpoint.getURL(), query);
         ResultSet results = qExe.execSelect();
         return ResultSetFormatter.asText(results);
-	}
+	}	
+
+	public static ResultSet getResultSet(String queryText) {
+    	Query query = QueryFactory.create(queryText);    	
+        QueryExecution qExe = QueryExecutionFactory.sparqlService(Endpoint.getURL(), query);
+        return qExe.execSelect();
+	}	
 	
 }
