@@ -1,0 +1,54 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX siop: <http://localhost/rdf_loa2012/ontologia/>
+PREFIX double: <http://www.w3.org/2001/XMLSchema#double>
+
+SELECT DISTINCT ?label
+WHERE {
+	?itemURI siop:tem%padraoClassificador% ?subItemURI ;
+			 rdf:label "%padraoLabelClassificador%" .
+	?subItemURI siop:tem%padraoSubClassificador% ?subClassURI .
+	?subClassURI rdf:label ?label.
+}
+ORDER BY ?label
+
+
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX siop: <http://localhost/rdf_loa2012/ontologia/>
+PREFIX double: <http://www.w3.org/2001/XMLSchema#double>
+
+SELECT DISTINCT ?label
+WHERE {
+	?itemURI siop:temUnidadeOrcamentaria ?subItemURI ;
+			 rdf:label "Universidade Federal de Itaju" .
+	?subItemURI siop:temOrgao ?subClassURI .
+	?subClassURI rdf:label ?label.
+}
+ORDER BY ?label
+
+##################################################
+#Unidade Orçamentária (Universidade Federal de Itaju, Comando do Exército)
+SELECT DISTINCT ?label
+WHERE {
+	?itemURI siop:temUnidadeOrcamentaria ?subItemURI.	
+	?subItemURI rdf:label ?label
+}
+ORDER BY ?label
+##################################################
+
+
+
+
++Há
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX siop: <http://localhost/rdf_loa2012/ontologia/>
+PREFIX double: <http://www.w3.org/2001/XMLSchema#double>
+
+SELECT DISTINCT ?label
+WHERE {
+	?itemURI siop:temUnidadeOrcamentaria ?subItemURI.
+	?subItemURI rdf:label "Fundo Naval" .
+	?subItemURI siop:temOrgao ?subClassURI .
+	?subClassURI rdf:label ?label.
+}
+ORDER BY ?label

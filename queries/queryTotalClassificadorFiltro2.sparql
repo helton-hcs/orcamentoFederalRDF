@@ -1,0 +1,13 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX siop: <http://localhost/rdf_loa2012/ontologia/>
+PREFIX siop-i: <http://localhost/rdf_loa2012/instancias/>
+PREFIX : <http://www.w3.org/2001/XMLSchema#double>
+
+SELECT (str(SUM(?valorDotacaoInicial)) AS ?total)
+WHERE {
+	?itemURI    siop:tem%padraoClassificador% ?subItemURI ;
+                siop:valorDotacaoInicial      ?valorDotacaoInicial.	
+	?subItemURI rdf:label                     "%padraoFiltro%" ;
+				siop:tem%padraoFiltro%        ?subFiltroURI .
+	?subFiltroURI rdf:label                   "%padraoFiltro2%" ;
+}

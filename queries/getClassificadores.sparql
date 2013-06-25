@@ -1,0 +1,12 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX siop: <http://localhost/rdf_loa2012/ontologia/>
+PREFIX siop-i: <http://localhost/rdf_loa2012/instancias/>
+PREFIX : <http://www.w3.org/2001/XMLSchema#double>
+
+SELECT DISTINCT ?label
+WHERE {
+	?itemURI ?label                   ?subItemURI ;
+             siop:valorDotacaoInicial ?valor .	
+	FILTER (CONTAINS(str(?label), "tem")).
+}
+ORDER BY ?label
