@@ -21,11 +21,9 @@ import java.awt.GridLayout;
 
 import javax.swing.JLabel;
 
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
+import com.ibm.icu.text.DecimalFormat;
 import com.waldeilson.orcamentoFederalRDF.core.Endpoint;
 import com.waldeilson.orcamentoFederalRDF.core.QueryFileReader;
 import com.waldeilson.orcamentoFederalRDF.core.QueryManager;
@@ -37,11 +35,25 @@ import javax.swing.JButton;
 import javax.swing.JTextArea;
 import javax.swing.border.EtchedBorder;
 
+import java.awt.Font;
+
+import javax.swing.SwingConstants;
+
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
+
 public class MainForm extends JFrame {
 
 	private static final long serialVersionUID = 2757288894157382433L;
 	private JPanel contentPane;
-	private JComboBox<String> comboBoxAtividade;
+	private JComboBox<String> comboBoxClassificador;
+	private JComboBox<String> comboBoxFiltro;
+	private JLabel lblResult; 
+	private JTextArea txtrQuery;
+	private JTextArea txtrResultado;
+	private static final String PADRAO_CLASSIFICADOR = "%padraoClassificador%";
+	private static final String PADRAO_FILTRO = "%padraoFiltro%";
+	private JLabel lblFiltro;
 
 	/**
 	 * Launch the application.
@@ -52,7 +64,7 @@ public class MainForm extends JFrame {
 				try {
 					MainForm frame = new MainForm();
 					frame.setVisible(true);			
-					EndpointUI endpointUI = new EndpointUI();
+					EndpointUI endpointUI = new EndpointUI(frame);
 					endpointUI.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -61,13 +73,58 @@ public class MainForm extends JFrame {
 		});
 	}
 	
-	private void loadComboBoxes() {				
-		String queryText = QueryFileReader.getQuery("loadComboBoxes.sparql");
-		JOptionPane.showMessageDialog(null, queryText);
-    	Query query = QueryFactory.create(queryText);    	
-        QueryExecution qExe = QueryExecutionFactory.sparqlService(Endpoint.getURL(), query);
-        ResultSet results = qExe.execSelect();
-		comboBoxAtividade.addItem(results.nextSolution().getLiteral("items").getString());
+	public void calculaTotalClassificador(){
+		String queryText = QueryFileReader.getQuery("queryTotalPorClassificador.sparql").replace("%pattern%",comboBoxClassificador.getSelectedItem().toString());
+        ResultSet results = QueryManager.getResultSet(queryText);
+    	txtrQuery.setText(queryText);        
+        try {
+        	QuerySolution qs = results.nextSolution();
+        	Double d = Double.parseDouble(qs.getLiteral("total").toString());
+        	DecimalFormat df = new DecimalFormat("R$ ###,###.00");
+        	lblResult.setText(df.format(d));
+        }
+        catch(NullPointerException npe) {
+            lblResult.setText("");	
+        }        
+	}
+	
+	
+	private void calculaTotalFiltroClassificador(){
+		if (comboBoxFiltro.getSelectedItem() != null) {
+			String queryText = QueryFileReader.getQuery("queryTotalClassificadorFiltro.sparql")
+					.replace(PADRAO_CLASSIFICADOR,comboBoxClassificador.getSelectedItem().toString())
+							.replace(PADRAO_FILTRO,comboBoxFiltro.getSelectedItem().toString());
+			txtrQuery.setText(queryText);
+			ResultSet results = QueryManager.getResultSet(queryText);
+	        try {
+	        	QuerySolution qs = results.nextSolution();
+	        	Double d = Double.parseDouble(qs.getLiteral("total").toString());
+	        	DecimalFormat df = new DecimalFormat("R$ ###,###.00");
+	        	lblResult.setText(df.format(d));
+	        }
+	        catch(NullPointerException npe) {
+	            lblResult.setText("");		 
+	        }        
+		}
+	}	
+	
+	
+	public void carregaClassificadores() {				
+		String queryText = QueryFileReader.getQuery("getClassificadores.sparql");
+        ResultSet results = QueryManager.getResultSet(queryText);
+        comboBoxClassificador.removeAll();
+        while (results.hasNext()) {
+        	comboBoxClassificador.addItem(results.nextSolution().getResource("label").getLocalName().substring(3));//retirar "tem"    	
+        }        
+	}
+	
+	private void carregaFiltro(String valor, JComboBox<String> destino) {		
+		String queryText = QueryFileReader.getQuery("getValoresDisponiveis.sparql").replace("%pattern%", valor);
+        ResultSet results = QueryManager.getResultSet(queryText);
+        destino.removeAllItems();
+        while (results.hasNext()) {
+        	destino.addItem(results.nextSolution().getLiteral("label").toString());    	
+        }	
 	}
 	
 	/**
@@ -76,28 +133,20 @@ public class MainForm extends JFrame {
 	public MainForm() {		 
 		setTitle("Explorando o Orçamamento Federal");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 573, 421);
+		setBounds(100, 100, 763, 367);
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
-		
-		JMenu mnQuery = new JMenu("Query");
-		menuBar.add(mnQuery);
-		
-		JMenuItem mntmAbrir = new JMenuItem("Abrir");
-		mnQuery.add(mntmAbrir);
-		
-		JMenuItem mntmSalvar = new JMenuItem("Salvar");
-		mnQuery.add(mntmSalvar);
 		
 		JMenu mnEndpoint = new JMenu("Endpoint");
 		menuBar.add(mnEndpoint);
 		
 		JMenuItem mntmConfiguracoes = new JMenuItem("Configurações");
 		
+		final MainForm mf = this;
 		mntmConfiguracoes.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				EndpointUI endpointUI = new EndpointUI();
+				EndpointUI endpointUI = new EndpointUI(mf);
 				endpointUI.setVisible(true);	
 			}
 		});
@@ -121,34 +170,51 @@ public class MainForm extends JFrame {
 		
 		JPanel panel_PesquisaComFiltros = new JPanel();
 		tabbedPane.addTab("Pesquisa com Filtros", null, panel_PesquisaComFiltros, null);
-		panel_PesquisaComFiltros.setLayout(new GridLayout(3, 1, 0, 0));
+		panel_PesquisaComFiltros.setLayout(new GridLayout(2, 1, 0, 0));
 		
-		JPanel panel_Atividade = new JPanel();
-		panel_PesquisaComFiltros.add(panel_Atividade);
-		panel_Atividade.setLayout(null);
+		JPanel panel_Classificador = new JPanel();
+		panel_PesquisaComFiltros.add(panel_Classificador);
+		panel_Classificador.setLayout(null);
 		
-		JLabel lblAtividade = new JLabel("Atividade");
-		lblAtividade.setBounds(12, 12, 70, 15);
-		panel_Atividade.add(lblAtividade);
+		JLabel lblClassificador = new JLabel("Classificador");
+		lblClassificador.setBounds(12, 12, 117, 15);
+		panel_Classificador.add(lblClassificador);
 		
-		comboBoxAtividade = new JComboBox<String>();
-		comboBoxAtividade.setBounds(12, 28, 513, 24);
-		panel_Atividade.add(comboBoxAtividade);
-		
-		JButton btnLoad = new JButton("Load");
-		btnLoad.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				loadComboBoxes();
+		comboBoxClassificador = new JComboBox<String>();		
+		comboBoxClassificador.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {				
+				if(e.getSource().equals(comboBoxClassificador) && comboBoxClassificador.getSelectedItem() != null){
+					carregaFiltro(comboBoxClassificador.getSelectedItem().toString(), comboBoxFiltro);
+					calculaTotalClassificador();
+					lblFiltro.setText(comboBoxClassificador.getSelectedItem().toString());
+				}
 			}
 		});
-		btnLoad.setBounds(12, 72, 117, 25);
-		panel_Atividade.add(btnLoad);
+		comboBoxClassificador.setBounds(12, 28, 703, 24);
+		panel_Classificador.add(comboBoxClassificador);
+		
+		lblFiltro = new JLabel("Filtro");
+		lblFiltro.setBounds(12, 64, 359, 15);
+		panel_Classificador.add(lblFiltro);
+		
+		comboBoxFiltro = new JComboBox();
+		comboBoxFiltro.setBounds(12, 78, 703, 24);
+		panel_Classificador.add(comboBoxFiltro);
+		comboBoxFiltro.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				calculaTotalFiltroClassificador();
+			}
+		});
 		
 		JPanel panel_4 = new JPanel();
 		panel_PesquisaComFiltros.add(panel_4);
+		panel_4.setLayout(null);
 		
-		JPanel panel_5 = new JPanel();
-		panel_PesquisaComFiltros.add(panel_5);
+		lblResult = new JLabel("");
+		lblResult.setBounds(12, 28, 703, 73);
+		panel_4.add(lblResult);
+		lblResult.setHorizontalAlignment(SwingConstants.CENTER);
+		lblResult.setFont(new Font("Dialog", Font.BOLD, 40));
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
 			gl_contentPane.createParallelGroup(Alignment.LEADING)
@@ -156,7 +222,8 @@ public class MainForm extends JFrame {
 					.addGap(7)
 					.addComponent(tabbedPane, GroupLayout.DEFAULT_SIZE, 542, Short.MAX_VALUE)
 					.addContainerGap())
-		);
+		);		
+
 		gl_contentPane.setVerticalGroup(
 			gl_contentPane.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_contentPane.createSequentialGroup()
@@ -174,11 +241,11 @@ public class MainForm extends JFrame {
 		panel.setLayout(null);
 		
 		JButton btnExecutar = new JButton("Executar");
-		btnExecutar.setBounds(161, 292, 95, 25);
+		btnExecutar.setBounds(256, 238, 95, 25);
 		panel.add(btnExecutar);
 		
-		final JTextArea txtrQuery = new JTextArea();
-		txtrQuery.setBounds(12, 12, 244, 268);
+		txtrQuery = new JTextArea();
+		txtrQuery.setBounds(12, 12, 339, 214);
 		panel.add(txtrQuery);
 		
 		JPanel panel_1 = new JPanel();
@@ -186,8 +253,8 @@ public class MainForm extends JFrame {
 		panel_Query.add(panel_1);
 		panel_1.setLayout(null);
 		
-		final JTextArea txtrResultado = new JTextArea();
-		txtrResultado.setBounds(12, 12, 244, 305);
+		txtrResultado = new JTextArea();
+		txtrResultado.setBounds(12, 12, 339, 251);
 		panel_1.add(txtrResultado);
 		contentPane.setLayout(gl_contentPane);
 

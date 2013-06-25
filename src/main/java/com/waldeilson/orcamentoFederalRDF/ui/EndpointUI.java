@@ -10,7 +10,6 @@ import javax.swing.JButton;
 
 import com.waldeilson.orcamentoFederalRDF.core.Endpoint;
 
-import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -22,20 +21,7 @@ public class EndpointUI extends JFrame {
 	private JTextField txtHost;
 	private JTextField txtPort;
 	private JTextField txtDataSet;
-	private JButton btnCancelar;
-	
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try { 
-					EndpointUI frame = new EndpointUI();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}	
+	private JButton btnCancelar;	
 	
 	private void carregarInformacoesEndpoint() {
 		if (Endpoint.isConfigurado()) {
@@ -45,7 +31,7 @@ public class EndpointUI extends JFrame {
 		}
 	}
 
-	public EndpointUI() {			
+	public EndpointUI(final MainForm mainForm) {			
 		setTitle("Configuração de endpoint");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 427, 116);
@@ -59,7 +45,7 @@ public class EndpointUI extends JFrame {
 		contentPane.add(lblHost);
 		
 		txtHost = new JTextField();
-		txtHost.setText("localhost");
+		txtHost.setText("192.168.1.103");
 		txtHost.setBounds(12, 27, 153, 19);
 		contentPane.add(txtHost);
 		txtHost.setColumns(10);
@@ -89,16 +75,21 @@ public class EndpointUI extends JFrame {
 		btnOk.addActionListener(new ActionListener() {
 			
 			private boolean validate() {
-				return !(txtHost.getText().isEmpty() && 
-						 txtPort.getText().isEmpty() && 
+				return !(txtHost.getText().isEmpty() ||
+						 txtPort.getText().isEmpty() ||
 						 txtDataSet.getText().isEmpty());
 			}
 			
 			public void actionPerformed(ActionEvent e) {
 				if (validate()) {
 					Endpoint.setup(txtHost.getText(), txtPort.getText(), txtDataSet.getText());
+					mainForm.carregaClassificadores();
+					mainForm.calculaTotalClassificador();
 					dispose();					
-				}				
+				}	
+				else {
+					JOptionPane.showMessageDialog(null, "Necessário campos obrigatórios.");					
+				}
 			}
 		});
 		

@@ -5,7 +5,7 @@ public class Endpoint {
 	private static String host;
 	private static String port;
 	private static String datasetName;
-		private static boolean configurado = false;
+	private static boolean configurado = false;
 	
 	public static void setup(String host, String port, String datasetName) {
 		Endpoint.host = host;

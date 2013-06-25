@@ -1,9 +1,0 @@
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX siop: <http://localhost/rdf_loa2012/ontologia/>
-
-SELECT DISTINCT (str(?filtros) AS ?items)
-WHERE {
-  ?itemURI ?filtros ?subItemURI. 
-  FILTER (REGEX(str(?filtros), "tem")).
-}
-ORDER BY ?filtros
