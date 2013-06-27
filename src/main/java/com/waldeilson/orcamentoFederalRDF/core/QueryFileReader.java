@@ -19,6 +19,7 @@ public class QueryFileReader
     	String input = "";
     	try {
 			input = readFile(System.getProperty("user.dir")+"/queries/"+queryName, StandardCharsets.UTF_8);
+    		//input = readFile(System.getProperty("user.dir")+"/queries/"+queryName, StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

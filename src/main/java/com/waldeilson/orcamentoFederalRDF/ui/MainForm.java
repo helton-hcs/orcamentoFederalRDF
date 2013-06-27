@@ -23,7 +23,6 @@ import javax.swing.JLabel;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
-import com.ibm.icu.text.DecimalFormat;
 import com.waldeilson.orcamentoFederalRDF.core.Endpoint;
 import com.waldeilson.orcamentoFederalRDF.core.QueryFileReader;
 import com.waldeilson.orcamentoFederalRDF.core.QueryManager;
@@ -41,6 +40,8 @@ import javax.swing.SwingConstants;
 
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 public class MainForm extends JFrame {
 
@@ -73,6 +74,10 @@ public class MainForm extends JFrame {
 		});
 	}
 	
+	private String getValorFormatado(Double valor) {
+		return NumberFormat.getCurrencyInstance(new Locale("pt", "BR")).format(valor);
+	}
+	
 	public void calculaTotalClassificador(){
 		String queryText = QueryFileReader.getQuery("queryTotalPorClassificador.sparql").replace("%pattern%",comboBoxClassificador.getSelectedItem().toString());
         ResultSet results = QueryManager.getResultSet(queryText);
@@ -80,8 +85,7 @@ public class MainForm extends JFrame {
         try {
         	QuerySolution qs = results.nextSolution();
         	Double d = Double.parseDouble(qs.getLiteral("total").toString());
-        	DecimalFormat df = new DecimalFormat("R$ ###,###.00");
-        	lblResult.setText(df.format(d));
+        	lblResult.setText(getValorFormatado(d));
         }
         catch(NullPointerException npe) {
             lblResult.setText("");	
@@ -99,8 +103,7 @@ public class MainForm extends JFrame {
 	        try {
 	        	QuerySolution qs = results.nextSolution();
 	        	Double d = Double.parseDouble(qs.getLiteral("total").toString());
-	        	DecimalFormat df = new DecimalFormat("R$ ###,###.00");
-	        	lblResult.setText(df.format(d));
+	        	lblResult.setText(getValorFormatado(d));
 	        }
 	        catch(NullPointerException npe) {
 	            lblResult.setText("");		 
@@ -133,25 +136,25 @@ public class MainForm extends JFrame {
 	public MainForm() {		 
 		setTitle("Explorando o Orçamamento Federal");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 763, 367);
+		setBounds(100, 100, 763, 371);
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 		
-		JMenu mnEndpoint = new JMenu("Endpoint");
+		JMenu mnEndpoint = new JMenu("Configuração");
 		menuBar.add(mnEndpoint);
 		
-		JMenuItem mntmConfiguracoes = new JMenuItem("Configurações");
+		JMenuItem mntmConfiguracoesEndpoint = new JMenuItem("Configurar endpoint");
 		
 		final MainForm mf = this;
-		mntmConfiguracoes.addActionListener(new ActionListener() {
+		mntmConfiguracoesEndpoint.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				EndpointUI endpointUI = new EndpointUI(mf);
 				endpointUI.setVisible(true);	
 			}
 		});
 		
-		mnEndpoint.add(mntmConfiguracoes);
+		mnEndpoint.add(mntmConfiguracoesEndpoint);
 		
 		JMenuItem mntmVerUrlAtual = new JMenuItem("Ver URL atual");
 		mntmVerUrlAtual.addActionListener(new ActionListener() {
@@ -197,7 +200,7 @@ public class MainForm extends JFrame {
 		lblFiltro.setBounds(12, 64, 359, 15);
 		panel_Classificador.add(lblFiltro);
 		
-		comboBoxFiltro = new JComboBox();
+		comboBoxFiltro = new JComboBox<String>();
 		comboBoxFiltro.setBounds(12, 78, 703, 24);
 		panel_Classificador.add(comboBoxFiltro);
 		comboBoxFiltro.addItemListener(new ItemListener() {
@@ -206,13 +209,13 @@ public class MainForm extends JFrame {
 			}
 		});
 		
-		JPanel panel_4 = new JPanel();
-		panel_PesquisaComFiltros.add(panel_4);
-		panel_4.setLayout(null);
+		JPanel panel_Resultado = new JPanel();
+		panel_PesquisaComFiltros.add(panel_Resultado);
+		panel_Resultado.setLayout(null);
 		
 		lblResult = new JLabel("");
 		lblResult.setBounds(12, 28, 703, 73);
-		panel_4.add(lblResult);
+		panel_Resultado.add(lblResult);
 		lblResult.setHorizontalAlignment(SwingConstants.CENTER);
 		lblResult.setFont(new Font("Dialog", Font.BOLD, 40));
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
@@ -220,42 +223,42 @@ public class MainForm extends JFrame {
 			gl_contentPane.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_contentPane.createSequentialGroup()
 					.addGap(7)
-					.addComponent(tabbedPane, GroupLayout.DEFAULT_SIZE, 542, Short.MAX_VALUE)
+					.addComponent(tabbedPane)
 					.addContainerGap())
-		);		
-
+		);
 		gl_contentPane.setVerticalGroup(
 			gl_contentPane.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_contentPane.createSequentialGroup()
 					.addGap(5)
-					.addComponent(tabbedPane, GroupLayout.PREFERRED_SIZE, 240, Short.MAX_VALUE))
+					.addComponent(tabbedPane, GroupLayout.PREFERRED_SIZE, 298, Short.MAX_VALUE)
+					.addContainerGap())
 		);
 		
-		JPanel panel_Query = new JPanel();
-		tabbedPane.addTab("Query", null, panel_Query, null);
-		panel_Query.setLayout(new GridLayout(1, 0, 0, 0));
+		JPanel panel_QueryResultado = new JPanel();
+		tabbedPane.addTab("Query", null, panel_QueryResultado, null);
+		panel_QueryResultado.setLayout(new GridLayout(1, 0, 0, 0));
 		
-		JPanel panel = new JPanel();
-		panel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		panel_Query.add(panel);
-		panel.setLayout(null);
+		JPanel panel_Query = new JPanel();
+		panel_Query.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		panel_QueryResultado.add(panel_Query);
+		panel_Query.setLayout(null);
 		
 		JButton btnExecutar = new JButton("Executar");
 		btnExecutar.setBounds(256, 238, 95, 25);
-		panel.add(btnExecutar);
+		panel_Query.add(btnExecutar);
 		
 		txtrQuery = new JTextArea();
 		txtrQuery.setBounds(12, 12, 339, 214);
-		panel.add(txtrQuery);
+		panel_Query.add(txtrQuery);
 		
-		JPanel panel_1 = new JPanel();
-		panel_1.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		panel_Query.add(panel_1);
-		panel_1.setLayout(null);
+		JPanel panel_ResultadoQuery = new JPanel();
+		panel_ResultadoQuery.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		panel_QueryResultado.add(panel_ResultadoQuery);
+		panel_ResultadoQuery.setLayout(null);
 		
 		txtrResultado = new JTextArea();
 		txtrResultado.setBounds(12, 12, 339, 251);
-		panel_1.add(txtrResultado);
+		panel_ResultadoQuery.add(txtrResultado);
 		contentPane.setLayout(gl_contentPane);
 
 		btnExecutar.addActionListener(new ActionListener() {
@@ -267,7 +270,7 @@ public class MainForm extends JFrame {
 					txtrResultado.setText(QueryManager.executar(txtrQuery.getText()));					
 				}				
 			}
-		});
+		});		
 				
 		setLocation((Toolkit.getDefaultToolkit().getScreenSize().width  - getWidth())  / 2,
 			    (Toolkit.getDefaultToolkit().getScreenSize().height - getHeight()) / 2);

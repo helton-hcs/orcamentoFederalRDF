@@ -34,7 +34,7 @@ public class EndpointUI extends JFrame {
 	public EndpointUI(final MainForm mainForm) {			
 		setTitle("Configuração de endpoint");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 427, 116);
+		setBounds(100, 100, 433, 129);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -45,7 +45,7 @@ public class EndpointUI extends JFrame {
 		contentPane.add(lblHost);
 		
 		txtHost = new JTextField();
-		txtHost.setText("192.168.1.103");
+		txtHost.setText("localhost");
 		txtHost.setBounds(12, 27, 153, 19);
 		contentPane.add(txtHost);
 		txtHost.setColumns(10);
